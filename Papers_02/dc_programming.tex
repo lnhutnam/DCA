@@ -1,0 +1,626 @@
+\documentclass[a4paper]{report}
+\input{./preamble.tex}
+% \usepackage{cmbright}
+
+\usepackage{faktor}
+
+\usepackage[backend=bibtex,sorting=nyvt,block=none,defernumbers=true,autolang=other]{biblatex}
+\addbibresource{refs.bib}
+
+\makeatletter
+\DeclareRobustCommand*{\mfaktor}[3][]
+{
+   { \mathpalette{\mfaktor@impl@}{{#1}{#2}{#3}} }
+}
+\newcommand*{\mfaktor@impl@}[2]{\mfaktor@impl#1#2}
+\newcommand*{\mfaktor@impl}[4]{
+   \settoheight{\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+   \settoheight{\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+      \raisebox{-0.5\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+      \mkern-4mu\diagdown\mkern-5mu%
+      \raisebox{0.5\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+}
+\makeatother
+
+\DeclareMathOperator{\Ker}{ker}
+\DeclareMathOperator{\im}{Im}
+
+\title{TỔNG QUAN VỀ QUY HOẠCH HIỆU CÁC HÀM LỒI - DC PROGRAMMING}
+\author{Lê Nhựt Nam$^1$$^2$}
+\date{
+    $^1$Khoa Toán - Tin học, Trường Đại học Khoa học Tự nhiên\\%
+    $^2$Đại học Quốc gia TP Hồ Chí Minh, Việt Nam\\%
+    \vfill
+    \today
+}
+
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    
+    \chapter{Dẫn nhập}
+
+    \chapter{Hàm hiệu lồi và bài toán quy hoạch hiệu các hàm lồi}
+
+    \section{Hàm DC}
+    \label{sec:dc_functions}
+
+    \begin{definition}
+        \label{def:dc_function}
+        Gọi $C$ là một tập con lồi của $\R^n$. Một hàm thực $f: C \rightarrow \R$ được gọi là DC trên tập $C$, nếu tồn tại hai hàm lồi $g, h: C \rightarrow \R$ sao cho $f$ được khai triển ở dạng:
+        \begin{equation}
+            \label{eq:dc_function}
+            f(x) = g(x) - h(x).
+        \end{equation}
+        Nếu $C = \R^n$, thì $f$ đơn giản gọi là một hàm DC. Mỗi thể diện trong dạng của Biểu thức \ref{eq:dc_function} được gọi một phân rã DC của $f$. Ta gọi một hàm $f: \R^n \rightarrow \R$ là DC cục bộ, nếu mọi $x_0 \in \R^n$, tồn tại một $\epsilon >0$ sao cho $f$ là DC trên quả cầu:
+        \begin{equation}
+            B(x_0, \epsilon) = \{x \in \R^n: \| x - x_0\| \leq \epsilon\}
+        \end{equation}
+    \end{definition}
+
+    \begin{remark}
+        Một số lưu ý:
+        \begin{itemize}
+            \item Tổng các hàm lồi là lồi 
+            \item Tích một số với hàm lồi là lồi 
+            \item Max các hàm lồi hoặc supermum các hàm lồi là lồi
+        \end{itemize}
+    \end{remark}
+
+    Mệnh đề dưới đây chứng minh rằng lớp các hàm DC là đóng dưới các phép toán trong tối ưu hóa. 
+
+    \begin{proposition}
+        \label{prop:closed_operations_dc}
+        Gọi $f$ và $f_i, i = 1\dots m$ là các hàm DC. Thì các hàm dưới đây cũng là DC:
+        \begin{enumerate}[label=(\roman*)]
+            \item $\sum_{i=1}^m\lambda_if_i(x), \quad\lambda_i \in \R,\quad\quad i = 1\dots m$,
+            \item $\max_{i = 1\dots m}f_i(x)$, và $\min_{i = 1\dots m}f_i(x)$,
+            \item $|f(x)|$, $f^{+} := \max\{0, f(x)\}$, và $f^{-} := \min\{0, f(x)\}$,
+            \item $\prod_{i=1}^nf_i(x)$.
+        \end{enumerate}
+    \end{proposition}
+
+    \begin{proposition}
+        \label{prop:locally_dc}
+        Mọi hàm DC cục bộ đều là DC.
+    \end{proposition}
+
+    \begin{proposition}
+        \label{prop:dc_consequences}
+        \begin{enumerate}[label=(\roman*)]
+            \item Mọi hàm $f: \R^n \rightarrow \R$ mà có đạo hàm riêng phần cấp hai liên tục tại mọi điểm thì là DC.
+            \item Gọi $C$ là một tập con lồi compact của $\R^n$. Thì mọi hàm liên tục trên $C$ là giới hạn của một dạy các hàm DC mà hội tụ đều trên $C$; tức là với bất kỳ hàm $c: C \rightarrow \R$ và với bất kỳ $\epsilon > 0$, tồn tại một hàm DC $f: C \rightarrow \R$ sao cho $|c(x) - f(x)| \leq \epsilon, \forall x \in C$.
+            \item Gọi $f: \R^n \rightarrow \R$ là một hàm DC, và gọi $g: \R \rightarrow \R$ là một hàm lồi. Thì hàm hợp $(g \circ f)(x) = g(f(x))$ là một hàm DC. 
+        \end{enumerate}
+    \end{proposition}
+
+    \section{Bài toán quy hoạch hiệu hàm lồi - DC Programming problems}
+    \label{sec:dc_programming}
+
+    Các bài toán quy hoạch với các hàm DC được gọi là các bài toán quy hoạch hiệu hàm lồi (DC programming problems). Dạng tổng quát của bài toán quy hoạch DC được xem xét:
+    \begin{equation}
+        \label{eq:general_dc_form}
+        \min\{f_0(x): x \in X, f_i(x) \leq 0, i = 1\dots m\},
+    \end{equation}
+    trong đó $f_i = g_i - h_i, i = 0\dots m$ là các hàm DC và $X$ là một tập con lồi đóng của $\R^n$. 
+
+    Bài toán:
+    \begin{equation}
+        \label{eq:canonical_dc_form}
+        \min\{c(x): x\in X, \psi(x) \leq 0\},
+    \end{equation}
+    trong đó $c$ là một hàm tuyến tính, $X \subset \R^n$ là tập lồi đóng, và $\psi$ là một hàm lõm, thường được gọi là một bài toán quy hoạch DC chính tắc (canonical DC programming). 
+    
+    Mọi bài toán quy hoạch DC trong dạng \ref{eq:general_dc_form} có thể được biến đổi sang dạng chính tắc \ref{eq:canonical_dc_form}.
+
+    \chapter{Một số mô hình bài toán quy hoạch hiệu hàm lồi}
+    \label{chap:some_dc_programming_problems}
+    
+    Quy hoạch DC có nhiều ứng dụng. Trong phần này, chúng tôi đều cập đến một số bài toán cụ thể mà có thể được mô hình hóa như bài toán quy hoạch hiệu hàm lồi.
+
+    \section{Bài toán quy hoạch với các ràng buộc của kiểu bổ sung}
+
+    Xem xét bài toán quy hoạch
+    \begin{equation}
+        \label{eq:programming}
+        \min\{c(x): x \in C\}
+    \end{equation}
+    trong đó $c: \R^n \rightarrow \R$ là một hàm liên tục và $C$ là một tập con lồi đóng của $\R^n$, với các ràng buộc bổ sung như sau:
+    \begin{equation}
+        \label{eq:complementarity}
+        x \geq 0,\quad h(x) \geq 0,\quad xh(x) = 0,
+    \end{equation}
+    trong đó $h: \R^n \rightarrow \R$ là một hàm vector liên tục.
+
+    Bài toán \refeq{eq:complementarity} thường được gọi là bài toán bù (complementarity problem); và thường được biết đến, bài toán \refeq{eq:programming} và \refeq{eq:complementarity} là vấn đề trung tâm trong nhiều bài toán thực tế như thiết kế kỹ thuật (engineering design), cân bằng kinh tế (economic equilibrium), các bài toán lý thuyết trò chơi đa cấp độ (multi-level game-theoretic problems). Giả định rằng các thành phần $h_i$ của $h, i = 1\dots m$ là các hàm lõm (concave function), và định nghĩa một hàm 
+    \begin{equation}
+        \label{eq:psi_function}
+        \psi(x) = \sum_{i=1}^m\min\{h_i(x); x_i\}.
+    \end{equation}
+    Thì một cách hiển nhiên, ta thấy $\psi$ là một hàm lõm, và hệ phương trình \refeq{eq:complementarity} tương đương với 
+    \begin{equation}
+        \label{eq:complementarity_equivalent}
+        x \geq 0,\quad h(x) \geq 0,\quad \psi(x) \leq 0,
+    \end{equation}
+    Do đó, 
+    \begin{equation}
+        X = \{x \in \R^n: x \in C, x \geq 0, h(x) \geq 0\},
+    \end{equation}
+    ta có thể phát biểu bài toán \refeq{eq:programming} với các ràng buộc bổ trợ \refeq{eq:complementarity} trong dạng tương đương như sau:
+    \begin{equation}
+        \label{eq:complementarity_equivanlent_form}
+        \min\{c(x): x \in X, \psi(x) \leq 0\},
+    \end{equation}
+    mà là một bài toán quy hoạch hiệu hàm lồi (DC programming) hay một bài toán quy hoạch hiệu hàm lồi chính tắc suy rộng (generalized canonical DC programming), bất cứ khi nào $c$ là DC hoặc lồi.
+    \section{Các bài toán đặt cầu - Bridge Location Problem}
+    Một chiếc cầu với chiều dài ngắn nhất cần được xây dựng dựa hai hòn đảo lồi $M$ và $D$ (bài toán P1), và giữa một hòn đảo lồi $M$ và bờ của một hồ lồi $L$ (bài toán P2), một cách tương ứng. Mô hình bài toán quy hoạch DC cho các bài toán này là 
+    \begin{equation}
+        \label{eq:bridge_problem_convex_1}
+        \text{(P1)}\quad\min\{d_M^2(x): x \in D\}
+    \end{equation}
+    và 
+    \begin{equation}
+        \label{eq:bridge_problem_convex_2}
+        \text{(P2)}\quad\min\{d_M^2(x): x \in R \setminus \text{int}L\}
+    \end{equation}
+    trong đó $R$ là bất cứ miền lồi nào xung quay hồ $L$. Lưu lý rằng $d^2_M$ là một hàm DC.
+
+    \section{Bài toán thiết lập trung tâm}
+    Bài toán thiết lập trung tâm có thể được phát biểu như sau: Gọi $D$ và $K$ là hai tập con compact của $\R^n$ mà có phần trong khác rỗng, và giả định rằng $0 \in \text{int} K$. Hơn nữa, đặt $r_D : \R^n \rightarrow \R$ là một hàm được định nghĩa bởi:
+    \begin{equation}
+        \label{eq:positive_part_function}
+        r_D(x) = \begin{cases}
+            \max\{r: x + rK \subset D\}, \quad\text{nếu } x \in D,\\
+            0,\quad\text{nếu } x \notin D
+        \end{cases}
+    \end{equation}
+    Tìm một điểm $x^{*} \in D$ và một số $r^{*}$ sao cho 
+    \begin{equation}
+        \label{eq:design_centering_problem}
+        r^{*} = r_D(x^{*}) = \max\{r_D(x): x \in D\}
+    \end{equation}
+    Ta có thể chứng minh rằng bài toán \refeq{eq:design_centering_problem} có thể được giải quyết bằng các kỹ thuật quy hoạch tuyến tính nếu $K$ và $D$ là các tập đa diện(polyhedral). Với trường hợp $K$ là lồi và $D$ có dạng:
+    \begin{equation}
+        \label{eq:d_form_k_convex}
+        D = D_0 \cap D_1 \cap \cdots \cap D_m,
+    \end{equation}
+    trong đó $D_0$ là một tập lồi, và với mỗi $i \geq 1, D_i$ là phần bù của một tập lồi mở, hàm $r_D$ là một hàm DC, thì bài toán \refeq{eq:design_centering_problem} là một bài toán quy hoạch DC.
+
+    \section{Bài toán vị trí - Location Problem}
+
+    Một dịch vụ hỗ trợ khách hàng được đặt ở trong một tần lồi $X$ của mặt phẳng $\R^2$ để mà phục vụ $k$ khách hàng ở các điểm $c_j \in X, j = 1\dots k$. Khi dịch vụ được đặt tại $x \in X$, sự hấp dẫn của nó đến khách hàng $j$ được mô tả bởi một hàm $g_j(d_j(x))$, trong đó $d_j(x) = \| x - c_j \|$ là khoảng cách từ $c_j$ đến $x$. Mỗi hàm $g_j$ được giả định là hàm lồi. Chọn vị trí mà cực đại tổng lượng hấp dẫn bằng cách giải bài toán tối ưu:
+    \begin{equation}
+        \label{eq:location_problem}
+        \max\left\{f(x) = \sum_{j=1}^kg_j(d_j(x)): x \in X\right\}.
+    \end{equation}
+    Trong góc nhìn của Mệnh đề \refeq{prop:dc_function} - iii), hàm mục tiêu $f$ trong bài toán \refeq{eq:location_problem} là một hàm DC, bởi vì mỗi hàm $g_j(d_j(x))$ là một hàm DC. 
+
+    \section{Bài toán đóng gói - Packing Problem}
+
+    Bài toán đóng gói phổ thông được biết đến là bài toán tìm bán kính cực đại của $n$ vòng tròn bằng nhau và không chồng chéo lên nhau mà có thể được bao đóng trong một hình vuông đơn vị. Bài toán này tương đơn với việc phân tán $n$ điểm $z^i, i = 1\dots n$ trong hình vuông đơn vị $C \subset \R^2$ sao cho khoảng cách bé nhất giữa bất kỳ cặp điểm nào trở nên lớn nhất có thể. Mô hình quy hoạch toán học của bài toán này như sau:
+    \begin{equation}
+        \label{eq:packing}
+        \max_{z^1, \dots, z^n \in C}\min\{\| z^i - z^k\|: 1 \leq i < k, i < k \leq n\}.
+    \end{equation}
+
+    Định nghĩa:
+    \begin{align}
+        x &= (z^1, \dots, z^n_1, z_2^1, \dots, z_2^n) \in \R^{2n},\\ 
+        E &= \{x \in \R^{2n}: 0 \leq x_j \leq 1, j = 1, \dots, 2n\}, \\
+        J &= \{1, \dots, 2n\},\\
+        J_{ik} &= \{i, k, n + i, n + k\}.
+    \end{align}
+
+    Thì bài toán \refeq{eq:packing} có thể được phát biểu như sau:
+    \begin{align}
+        \label{eq:packing_opt_problem}
+        &\max_{x \in E}\min\left\{(x_i - x_k)^2 + (x_{n+i} - x_{n+k})^2: 1 \leq i < k, i < k \leq n\right\} \\
+        &= \max_{x \in E}\min\left\{\left[(x_i - x_k)^2 + (x_{n+i} - x_{n+k})^2 - 2\sum_{j = 1}^{2n}x_j\right] + 2\sum_{j=1}^{2n}x_j : 1 \leq i < k, i < k \leq n\right\} \\ 
+        &=\max_{x \in E}\left\{2\sum_{j=1}^{2n}x_j^2 + \min\left\{-\left(2\sum_{j \in J \setminus J_{ik}}x^2_j + (x_i + x_k)^2 + (x_{n+i} + x_{n + k})^2\right): 1 \leq i < k, i < k \leq n\right\} \right\}\\ 
+        &=\max_{x \in E}\left\{
+            2\sum_{j=1}^{2n}x_j^2 - \max\left\{
+                \left(
+                    2\sum_{j \in R \setminus J_{ik}}x_j^2 + (x_i + x_k)^2 + (x_{n+i} + x_{n+k})^2
+                \right): 1 \leq i < k, i < k \leq n
+            \right\}
+        \right\}
+    \end{align}
+    Hàm mục tiêu của bài toán là một hàm DC $g(x) - h(x)$, trong đó 
+    \begin{align}
+        \label{eq:objective_function_packing}
+        g(x) &= 2\sum_{j=1}^{2n}x_j^2\\
+        h(x) &=  \max\left\{
+                \left(
+                    2\sum_{j \in R \setminus J_{ik}}x_j^2 + (x_i + x_k)^2 + (x_{n+i} + x_{n+k})^2
+                \right): 1 \leq i < k, i < k \leq n
+            \right\}
+    \end{align}
+
+    \section{Tối ưu trên các tập hiệu lực}
+    Xem xét bài toán quy hoạch tuyến tính đa mục tiêu (multiple-objective linear programming) như sau:
+    \begin{equation}
+        \max{c^ix},\quad i=1,\dots,p,\quad\text{s.t. } x \in X,
+    \end{equation}
+    trong đó $X$ là một polytope (tập đa diện bị chặn - bounded polyhedral set) in $\R^n$, và $c^i \in \R^n \setminus \{0\}, i = 1,\dots,p$. Các vector $c^i$ được gọi là các vector tiêu chí (criterion vectors) của bài toán trên. 
+
+    Ma trận $C$ kích thước $p \times n$ có các dòng $c^1, \dots, c^p$. Một điểm $y \in X$ được gọi là một nghiệm hiệu lực của bài toán quy hoạch trên, nếu không có điểm $x \in X$ thỏa mãn $Cx \geq Cy$ và $Cx \ne Cy$. Đặt $E_X$ đại diện cho tập tất cả nghiệm
+    hiệu lực của bài toán, và gọi $c: \R^n \rightarrow \R$ là một hàm lồi, xem xét bài toán tối ưu trên tập hiệu lực $E_X$ sau: 
+    \begin{equation}
+        \min\{c(y): y \in E_x\}
+    \end{equation}
+    Gọi $e = (1, \dots, 1) \in \R^n$, và $b: X \rightarrow \R$ là một hàm được định nghĩa bởi:
+    \begin{equation}
+        b(y) = \max\{eC(x - y): Cx \geq Cy, x \in X\}
+    \end{equation}
+    Thì hiển nhiên, $b$ lõm trên $X$ thỏa mãn:
+    \begin{equation}
+        b(y) \geq 0,\quad\text{for }y \in X
+    \end{equation}
+    và $y$ là một nghiệm hiệu lực nếu và chỉ nếu $b(y) = 0$. Do đó, bài toán tối ưu trên tập hiệu lực có thể được viết như sau:
+    \begin{equation}
+        \min\{c(y): b(y) \leq 0, y \in X\}
+    \end{equation}
+    là một bài toán DC chính tắc suy rộng.
+    \chapter{Điều kiện tối ưu và tính đối ngẫu}
+    \label{chap:optim_cond_duality}
+
+    \section{Định nghĩa và ký hiệu}
+    \label{sec:definition_notion}
+
+    \begin{definition}
+        \label{def:epigraph}
+        Gọi $\varphi: \R^n \rightarrow \R \cup \{\pm \infty\}$ là một hàm bất kỳ. Tập hợp 
+        \begin{equation}
+            \label{eq:epi_graph}
+            \text{epi}\varphi = \{(x, t) \in \R^n \times \R: \varphi(x) - t \leq 0\}
+        \end{equation}
+        được gọi là epigraph của $\varphi$.
+
+        Gọi $X$ là tập hợp con của $\R^n$. Đặt:
+        \begin{equation}
+            \label{eq:epi_graph_set}
+            \text{epi}\varphi\mid X = \{(x, t) \in \R^n \times \R: x \in X, \varphi(x) - t \leq 0\}
+        \end{equation}
+    \end{definition}
+
+    \begin{definition}
+        \label{def:epsilon_subgradient}
+        Gọi $\varphi: \R^n \rightarrow \R \cup \{+ \infty\}$ là một hàm bất kỳ, $\overline{x} \in \R^n$ thỏa mãn $\varphi(\overline{x}) < +\infty$, và $\epsilon \geq 0$. Một vector $s \in \R^n$ được gọi là một $\epsilon$-subgradient (dưới gradient $\epsilon$) của $\varphi$ tại $\overline{x}$ nếu thỏa mãn
+        \begin{equation}
+            \label{eq:epsilon_subgradient_cond}
+            \varphi(x) \geq \varphi(\overline{x}) + s(x - \overline{x}) - \epsilon, \quad\forall x \in \R^n.
+        \end{equation}
+    \end{definition}
+    Tập hợp tất cả các $\epsilon$-subgradient của $\varphi$ tại $\overline{x}$ được gọi là dưới vi phân $\epsilon$ ($\epsilon$-subdifferential) của $\varphi$ tại $\overline{x}$ và ký hiệu là $\partial_{\epsilon}\varphi(\overline{x})$. Nếu $\epsilon = 0$, thì $s$ và $\partial\varphi(\overline{x})$ được gọi là dưới gradient và dưới vi phân của $\varphi$ tại $\overline{x}$. 
+
+    Gọi $X$ là một tập con của $\R^n$. Đặt:
+    \begin{equation}
+        \label{eq:subgradient_set}
+        \partial_{\epsilon}\varphi(\overline{x}) = \{
+            s \in \R^n: \varphi(x) \geq \varphi(\overline{x}) + s(x - \overline{x}) - \epsilon, \quad\forall x \in X
+        \}.
+    \end{equation}
+
+    \begin{definition}
+        \label{def:conjugate_function}
+        Cho trước một hàm bất kỳ $\varphi: \R^n \rightarrow \R \cup \{+\infty\}$, hàm  $\varphi^*: \R^n \rightarrow \R \cup \{+\infty\}$ được định nghĩa:
+        \begin{equation}
+            \varphi^*(y) = \sup\{yx - \varphi(x): x \in R^n\}
+        \end{equation}
+        được gọi là hàm liên hợp (conjugate function) của $\varphi$.
+    \end{definition}
+
+    \begin{definition}
+        Ta có một số định nghĩa quan trọng như sau:
+        \begin{enumerate}[label=(\roman*)]
+            \item Với bất kỳ tập $X \subset \R^n$, hàm 
+            \begin{equation}
+                \label{eq:indicator_function}
+                I_X(x) = \begin{cases}
+                    0, \quad\text{nếu}\quad x \in X,\\
+                    +\infty, \quad\text{nếu}\quad x \notin X,
+                \end{cases}
+            \end{equation}
+            được gọi là hàm chỉ (indicator function) của $X$.
+            \item Gọi $X$ là bất kỳ tập con lồi nào $\R^n$, $\overline{x} \in \R^n$ và $\epsilon \geq 0$. Tập hợp 
+            \begin{equation}
+                \label{eq:epsilon_normal_cone}
+                N_\epsilon(X, \overline{x}) = \{d \in \R^n: d(x - \overline{x}) \leq \epsilon, \forall x \in X\}
+            \end{equation}
+            được gọi là $\epsilon-$normal cone (nón chuẩn epsilon, nón pháp tuyến epsilon) của $X$ tại $\overline{x}$. $0-$normal cone được gọi đơn giản là nón pháp tuyến và ký hiệu là $N(X, \overline{x})$.
+            \item Với bất kỳ tập lồi $X \subset \R^n$, hàm 
+            \begin{equation}
+                \label{eq:support_function}
+                I^*_X(y) = \sup\{yx: x\in X\}
+            \end{equation}
+            được gọi là hàm tựa (support function) của $X$.
+        \end{enumerate}
+    \end{definition}
+
+    \begin{remark}
+        Bởi định nghĩa, hàm $I_X$ là một hàm lồi cho dù tập $X$ có lồi hay không. Hàm $\varphi^*$ là lồi với mọi $\varphi$. Hơn nữa, nếu $\varphi$ là lồi thì $\varphi^{**} = \varphi$.
+    \end{remark}
+
+
+    \section{Điều kiện tối ưu}
+    \label{sec:optim_cond}
+    Trước khi thiết lập điều kiện tối ưu trong quy hoạch DC, ta nhắc lại khái niệm ``nguyên lý tương hỗ Tikhonov'' mà thường được sử dụng trong tối ưu không lồi và các bài toán biến phân chưa đặt chỉnh (ill-posed variational problems). Xem xét cặp bài toán quy hoạch như sau:
+    \begin{align}
+        \label{eq:programming_prob_01}
+        \omega^*_{\delta} &= \inf\{\omega(z): z \in \mathbf{Z}, \psi(z) \leq \delta\},\\
+        \label{eq:programming_prob_02}
+        \psi^*_{\eta} &= \inf\{\psi(z): z \in \mathbf{Z}, \omega(z) \leq \eta\},
+    \end{align}
+    trong đó, $\mathbf{Z} \subseteq \R^p$ và $\omega, \psi$ là các hàm hữu hạn trên $\R^p$. Gọi $\Omega_{\delta}^*$ và $\Psi_{\eta}^*$ lần lượt là các tập nghiệm tối ưu của hai bài toán trên.
+
+    \begin{definition}
+        \label{def:two_problems_reciprocal}
+        Ta nói các bài toán \refeq{eq:programming_prob_01} và \refeq{eq:programming_prob_02} tương hỗ với nhau nếu $\Omega_{\delta}^* = \Psi_{\eta}^*$; trong trường hợp này, ta cũng nói rằng nguyên lý tương hỗ cũng được thỏa mãn.
+    \end{definition}
+
+    \begin{proposition}
+        \label{prop:reciprocity_principle_two_problems}
+        Nếu $\mathbf{Z} = \R^p, \omega(z) = \| z\|$, và $\eta = \eta_{\delta}^*$, thì nguyên lý tương hỗ thỏa mãn với bất kỳ hàm liên tục $\psi(z)$ bất kỳ $\{z \in \mathbf{Z}: \psi(z) \leq \delta\} \ne \varnothing$.
+    \end{proposition}
+
+    Kết quả dưới đây là một chìa khóa cho việc thu được các điều kiện tối ưu.
+
+    \begin{proposition}
+        \label{prop:reciprocity_principle_two_problems_cond}
+        Giả định rằng, trong các bài toán \refeq{eq:programming_prob_01} và \refeq{eq:programming_prob_02}, nếu thỏa mãn $\eta = \omega_{\delta}^*$ và $\psi_{\eta}^* = \delta$. Thì, với mọi tập $\mathbf{Z}$ và bất kỳ hàm $\omega(z)$, $\psi(z)$, nguyên lý tương hỗ được thỏa mãn.
+    \end{proposition}
+    \begin{proof}
+        Gọi $z^*$ là nghiệm tối ưu bất kỳ của bài toán \refeq{eq:programming_prob_01}. Thì ta có:
+        \begin{equation}
+            z^* \in \mathbf{Z},\quad \omega(z^*) = \omega_\delta^* = \eta, \quad \psi(z^*) \leq \delta = \psi_\eta^*
+        \end{equation}
+        Điều này ám chỉ rằng $z^*$ là một nghiệm tối ưu của bài toán \refeq{eq:programming_prob_02}. Do đó, $\Omega_\delta^* \subseteq \Psi_\eta^*$. Bao hàm thức $\Omega_\delta^* \supseteq \Psi_\eta^*$ chứng minh tương tự.
+    \end{proof}
+    Tiếp theo, ta xem xét một số điều kiện tối ưu cho các bài toán tối ưu mà giải quyết với các hàm DC mà có thể suy ra trực tiếp từ Mệnh đề \ref{prop:reciprocity_principle_two_problems_cond}. Với mục tiêu của chúng ta, ta giới thiệu khái niệm sau về tập con bền vững trong không gian $\R^p$.
+    
+    \begin{definition}
+        \label{def:robust}
+        Gọi $\mathbf{Z} \subseteq \R^p, f: \R^p \rightarrow \R$ và $\delta \in \R$. Tập hợp $\mathbf{S}(\mathbf{Z}, f, \delta) = \{z \in {Z}: f(z) \leq \delta\}$ được gọi là bền vững (robust) nếu $\mathbf{S}(\mathbf{Z}, f, \delta) = \text{cl}(\{z \in \mathbf{Z}: f(z) < \delta\})$, trong đó với mỗi tập $\mathbf{S}$, $\text{cl}(\mathbf{S})$ đại diện cho bao đóng (closure) của tập $\mathbf{S}$.
+    \end{definition}
+
+    \begin{lemma}
+        \label{lemma:robust_cond}
+        Nếu trong bài bài toán \refeq{eq:programming_prob_01} và \refeq{eq:programming_prob_02} hàm $\omega$ lồi và nếu điều kiện sau đây được thỏa mãn:
+        \begin{equation}
+            \label{eq:robust_cond}
+            \exists z^0 \in \mathbf{Z}: \omega(z^0) < \omega^*,
+        \end{equation}
+        thì tập $S(\mathbf{Z}, \omega, \eta)$ bền vững với mỗi $\eta \geq \omega^*$.
+    \end{lemma}
+    \begin{proof}
+        
+    \end{proof}
+
+    Điều kiện tối ưu sau đây cho bài toán quy hoạch DC trực giao suy rộng là một hệ quả của Mệnh đề \ref{prop:reciprocity_principle_two_problems_cond}. Để ý rằng bài toán quy hoạch DC trực giao suy rộng được định nghĩa trong Phần \ref{sec:dc_programming} là một trường hợp đặc biệt của bài toán \refeq{eq:programming_prob_01} trong đó $\delta = 0$ và hàm $\omega$ và $\psi$ là các hàm lồi.
+
+    \begin{proposition}
+        Giả định rằng trong bài toán quy hoạch DC trực giao suy rộng
+        \begin{equation}
+            \label{eq:generalized_canonical_dc_program}
+            \omega^* = \inf\{\omega(z): z \in \mathbf{Z}, \psi(z) \leq 0\},
+        \end{equation}
+        tập $\mathbf{S}(\mathbf{Z}, \psi, 0) = \{z \in \mathbf{Z}: \psi(z) \leq 0\}$ bền vững và điều kiện \refeq{eq:robust_cond} được thỏa mãn. Thì một điểm khả thi $z^*$ của bài toán \refeq{eq:generalized_canonical_dc_program} là một nghiệm tối ưu nếu và chỉ nếu 
+        \begin{equation}
+            0 = \inf\{\psi(z): z \in \mathbf{Z}, \omega(z) \leq \omega(z^*)\}.
+        \end{equation}
+    \end{proposition}
+    \begin{proof}
+        
+    \end{proof}
+    
+    Một lớp quan trọng của bài toán tối ưu DC là:
+    \begin{equation}
+        \label{eq:dc_programming_gh_convex}
+        \omega^* = \inf\{g(x) - h(x): x \in {X}\},
+    \end{equation}
+    trong đó, $g$ và $h$ là hai hàm lồi trên không gian $\R^n$, và $X$ là một tập con lồi đóng của $\R^n$. Kết quả tiếp theo cho ta một điều kiện tối ưu cho bài toán này.
+
+    \begin{proposition}
+        Giả định rằng bài toán \refeq{eq:dc_programming_gh_convex} có thể giải được. Thì một điểm $x^* \in X$ được gọi là một nghiệm tối ưu của nó nếu và chỉ nếu tồn tại $t^* \in \R$ sao cho:
+        \begin{equation}
+            0 = \inf\{ -h(x)+t: x \in X, t \in R, g(x) - t \leq g(x^*) - t^*\}.
+        \end{equation}
+    \end{proposition} 
+    \begin{proof}
+        
+    \end{proof}   
+
+    Dựa trên điều kiện tối ưu trên, một thuật toán để giải quyết các bài toán quy hoạch DC có dạng như bài toán \refeq{eq:dc_programming_gh_convex} được phát triển trong phần \ref{sec:cutting_plance_algorithm}. Bằng cách sử dụng ký hiệu trong Biểu thức \refeq{eq:epi_graph_set}, ta thu được điều kiện tối ưu hình học cho bài toán \refeq{eq:dc_programming_gh_convex}.
+
+    \begin{proposition}
+        Một điểm $x^* \in X$ là một nghiệm tối ưu của bài toán \refeq{eq:dc_programming_gh_convex} nếu và chỉ nếu
+        \begin{equation}
+            \label{eq:geometric_optim_cond_gh_convex}
+            \text{epi}\overline{g} \mid X \subset text{epi}{h} \mid X
+        \end{equation}
+        trong đó $\overline{g}(x) = g(x) - (g(x^*) - h(x^*))$.
+    \end{proposition}
+    \begin{proof}
+        
+    \end{proof}
+
+    Một dạng khác của điều kiện \refeq{eq:geometric_optim_cond_gh_convex} được biểu diễn sau đây khi ta sử dụng ký hiệu ở Biểu thức \refeq{eq:subgradient_set}.
+
+    \begin{proposition}
+        Một điểm $x^* \in X$ là một nghiệm tối ưu của bài toán \refeq{eq:dc_programming_gh_convex} nếu và chỉ nếu
+        \begin{equation}
+            \label{eq:subgradient_optim_cond_gh_convex}
+            \partial X_{\epsilon}h(x^*) \subset \partial X_{\epsilon}g(x^*), \forall \epsilon \geq 0.
+        \end{equation}
+    \end{proposition}
+    \begin{proof}
+        
+    \end{proof}
+
+    \begin{remark}
+        Ta có một số nhận xét như sau.
+        \begin{enumerate}[label=(\roman*)]
+            \item Với trường hợp $X = \R^n$, điều kiện \refeq{eq:subgradient_optim_cond_gh_convex} trở thành:
+            \begin{equation}
+                \partial_{\epsilon}h(x^*) \subset \partial_{\epsilon}g(x^*), \forall \epsilon \geq 0.
+            \end{equation}
+            Đây là một kết quả nổi tiếng trong tối ưu Dc và được chứng minh lần đầu tiên bởi Hiriart-Urruty (Tham khảo: \cite{hiriart1985generalized})
+            \item Nếu $g \equiv 0$, thì bài toán \refeq{eq:dc_programming_gh_convex} thường được gọi là một bài toán quy hoạch lõm (concave programming problem). Bằng cách sử dụng hàm chỉ của tập $X$ trong \refeq{eq:indicator_function}, bài toán này có thể được viết lại như sau:
+            \begin{equation}
+                \label{q:dc_programming_gh_convex_2}
+                \inf\{I_X(x) - h(x): x \in \R^n\}.
+            \end{equation}
+            Do đó, với trường hợp này, điều kiện \refeq{eq:subgradient_optim_cond_gh_convex} trở thành 
+            \begin{equation}
+                \label{eq:subgradient_optim_cond_gh_convex_2}
+                \partial_{\epsilon}h(x^*) \subset N_\epsilon(X, x^*), \quad \forall \epsilon \geq 0,
+            \end{equation}
+            trong đó $N_\epsilon(X, x^*)$ được định nghĩa trong Biểu thức \refeq{eq:epsilon_normal_cone}. Ta có thể chứng minh được rằng \refeq{eq:subgradient_optim_cond_gh_convex_2} tương đương với các điều kiện sau:
+            \begin{align}
+                \label{eq:subgradient_optim_cond_gh_convex_3}
+                &h(x^*) = \sup\{I^*_X(y) - h^*(y): y \in \R^n\},\\
+                \label{eq:subgradient_optim_cond_gh_convex_4} 
+                &\partial h(z) \subset N(X, z), \quad \forall z \in \{x: h(x) = h(x^*)\}.
+            \end{align}
+            Điều kiện \refeq{eq:subgradient_optim_cond_gh_convex_3} được thiết lập dựa trên tính đối ngẫu của bài toán \refeq{q:dc_programming_gh_convex_2}. Điều kiện \refeq{eq:subgradient_optim_cond_gh_convex_4} cần một giả định bổ sung:
+            \begin{equation}
+                \inf\{h(x): x \in X\} < h(x^*),
+            \end{equation}
+            do Strekalovski đề xuất.
+        \end{enumerate}
+    \end{remark}
+
+    \section{Đối ngẫu trong quy hoạch DC}
+
+    Xem xét bài toán quy hoạch DC được cho bởi dạng như sau:
+    \begin{equation}
+        \label{eq:dc_programming_gh_convex_2}
+        \inf\{g(x) - h(x): x \in {\R^n}\},
+    \end{equation}
+    trong đó $g: \R^n \rightarrow \R \cup \{+\infty\}$ và $h: \R^n \rightarrow \R$ là hai hàm lồi. 
+    
+    Để ý rằng bài toán ở dạng 
+    \begin{equation}
+        \inf\{g(x) - h(x): x \in {X}\},
+    \end{equation}
+    trong đó $X$ là một tập con lồi của $\R^n$ có thể được viết lại ở dạng \refeq{eq:dc_programming_gh_convex_2} bằng cách đặt:
+    \begin{equation}
+        g = g + I_X 
+    \end{equation}
+    trong đó $I_X$ là hàm chỉ của $X$.
+
+    Đặt $g^*$ và $f^*$ lần lượt là các hàm liên hợp của $g$ và $h$, gọi:
+    \begin{equation}
+        \label{eq:conjugate_set}
+        Y = \{y \in \R^n: h^*(y) < +\infty\}.
+    \end{equation}
+
+    Bài toán quy hoạch 
+    \begin{equation}
+        \label{eq:dc_programming_fenchel_rockafellar}
+        \inf\{h^*(y) - g^*(y): y \in Y\}
+    \end{equation}
+    được gọi là bài toán đối ngẫu Fenchel-Rockafellar của bài toán \refeq{eq:dc_programming_gh_convex_2}. Trước khi thiết lập mối quan hệ giữa \refeq{eq:dc_programming_gh_convex_2} và \refeq{eq:dc_programming_fenchel_rockafellar}, chúng ta sử dụng một số biểu thức hữu ích trong việc tính toán giá trị của hàm liên hợp; Tham khảo.
+
+    \begin{lemma}
+        \label{lemma:values_conjugate_function}
+        \begin{enumerate}[label=(\roman*)]
+            \item Gọi $\overline{x} \in \R^n$ và $\overline{y} \in \partial h(\overline{x})$. Thì 
+            \begin{equation}
+                h^*(\overline{y}) = \bar{y}\bar{x} - h(\overline{x}).
+            \end{equation}
+            \item Gọi $g: \R^n \rightarrow \R \cup \{+\infty\}$ là một hàm bất kỳ, và gọi $h: \R^n \rightarrow \R$ là một hàm lồi. Đặt $f = g - h$. Thì hàm liên hợp $f^*$ của $f$ được cho bởi: 
+            \begin{equation}
+                f^*(z) = \sup\{g^*(y + z) - h^*(y): y \in Y\},
+            \end{equation}
+            trong đó $Y$ được định nghĩa trong Biểu thức \refeq{eq:conjugate_set}.
+        \end{enumerate}
+    \end{lemma}
+    \begin{proof}
+        
+    \end{proof}
+
+    Sử dụng Bổ đề \ref{lemma:values_conjugate_function}, ta thu được các kết quả về quan hệ giữa \refeq{eq:dc_programming_gh_convex_2} và \refeq{eq:dc_programming_fenchel_rockafellar}.
+
+    \begin{theorem}
+        \begin{enumerate}[label=(\roman*)]
+            \item Nếu bài toán \refeq{eq:dc_programming_gh_convex_2} có một nghiệm tối ưu thì nó thỏa điều kiện sau:
+            \begin{equation}
+                \label{eq:dual_cond}
+                \inf\{g(x) - h(x): x \in R^n\} = \inf\{h^*(y) - g^*(y): y \in Y\}.
+            \end{equation}
+            \item Bài toán đối ngẫu Fenchel-Rockafellar của bài toán \refeq{eq:dc_programming_fenchel_rockafellar} là bài toán \refeq{eq:dc_programming_gh_convex_2}.
+        \end{enumerate}
+    \end{theorem}
+    \begin{proof}
+        
+    \end{proof}
+
+    Biểu thức \refeq{eq:dual_cond} được đề xuất lần đầu tiên bởi Pshenichnyi. Các kết quả liên quan về tính đối ngẫu có thể được tìm thấy trong. Bởi vì $h^*$ và $g^*$ là hàm lồi, bài toán \refeq{eq:dc_programming_fenchel_rockafellar} thật sự là một bài toán quy hoạch DC của dạng \refeq{eq:dc_programming_gh_convex_2}. Hơn nữa, tính chất đối xứng cũng xuất hiện trong quan hệ giữa các nghiệm tối ưu của các bài toán này.
+
+    \begin{proposition}
+        \begin{enumerate}[label=(\roman*)]
+            \item Nếu $x^*$ là một nghiệm tối ưu của bài toán \refeq{eq:dc_programming_gh_convex_2}, thì mỗi $y^* \in \partial h(x^*)$ là một nghiệm tối ưu của bài toán \refeq{eq:dc_programming_fenchel_rockafellar}.
+            \item Nếu $y^*$ là một nghiệm tối ưu của bài toán \refeq{eq:dc_programming_fenchel_rockafellar}, thì mỗi $x^* \in \partial g^*(y^*)$ là một nghiệm tối ưu của bài toán \refeq{eq:dc_programming_gh_convex_2}.
+        \end{enumerate}
+    \end{proposition}
+
+    \begin{proof}
+        
+    \end{proof}
+
+
+    \chapter{Phương pháp tìm nghiệm}
+    \label{chap:solution_methods}
+
+    \section{Thuật toán nhánh cận (Branch-and-Bound Algorithm)}
+    \label{sec:branch_bound_algorithm}
+    Thuật toán sau đây được thiết kế để giải quyết bài toán quy hoạch DC trong dạng 
+    \begin{equation}
+        \label{eq:dc_programming_bab}
+        \min\{f_0(x): x \in X, f_i(x) \leq 0. i = 1,\dots, m\},
+    \end{equation}
+    trong đó:
+    \begin{equation}
+        f_i = g_i - h_i, i = 1,\dots, m
+    \end{equation}
+    là các hàm DC và $X \in \R^n$ là một polytope (tập đa diện bị chặn - bounded polyhedral set) được định nghĩa bởi:
+    \begin{equation}
+        \label{eq:polytope}
+        X = \{x \in \R^n: Ax + b \leq 0\},
+    \end{equation}
+    với $A$ và $b$ là ma trận và vector với kích thước cho trước. Ta đặt $F$ là tập khả thi của bài toán \refeq{eq:dc_programming_bab}. Thuật toán được trình bày ở đây thuộc vào nhóm nhánh cận (branch-and-bound) và có thể phát biểu như sau.
+
+    \begin{algorithm}
+        
+        DC Programming Branch-and-Bound Algorithm
+
+        \textbf{Initialization}. 
+
+        \begin{enumerate}[label=(\roman*)]
+            % \item Xây dựng một đơn hình (simplex) $S^1 \supseteq X$;
+            \item Construct a simplex $S^1 \supseteq X$;
+            \item Compute the lower bound $\mu(S^1)$ for $f_0$ on $S^1 \cap F$;
+            \item Determine a set $Q(S^1) \subset S^1 \cap F$ [note that $Q(S^1)$ can be empty];
+            \item Set $Q^1 = Q(S^1), \gamma_1 = \min\{f_0(x): x \in Q^1\}$, where $\gamma_1$ is an upper bound for the optimal value of the underlying problem, $\gamma_1 = +\infty$ if $Q^1 = \varnothing$;
+            \item Choose a point $\xi^1 \in Q^1$ such that $f_0(\xi^1) = \gamma_1$;
+            \item Set $\mu_1 = \mu(S^1), \mathscr{R}^1 = \{S^1\}, k = 1$.
+        \end{enumerate}
+
+        \textbf{Iteration $k$}.
+        \begin{enumerate}[label=(\roman*)]
+            \item If $\gamma_k = \mu_k$, then stop: $\xi^k$ is an optimal solution and $\gamma_k$ is the optimal value; otherwise, divide $S^k$ into $r$ simplices $S^k_1, \dots, S^k_r$ satisfying $\bigcup_{i=1}^rS_i^k = S^k, \text{int}S^k_i \cap \text{int}S^k_j = \varnothing$, for $i \ne j$.
+        \end{enumerate} 
+    \end{algorithm}
+
+    \section{Kết hợp nhánh cận (Branch-and-Bound) và phương pháp ngoại-xấp xỉ (Outer-Approximation Methods)}
+    \label{sec:mix_branchbound_outerapproximation}
+
+    \section{Thuật toán mặt phẳng cắt (Cutting Plane Algorithm)}
+    \label{sec:cutting_plance_algorithm}
+
+    % Tài liệu tham khảo
+    \refs
+    \nocite{*}
+\end{document}
