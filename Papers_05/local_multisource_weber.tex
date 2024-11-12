@@ -1,0 +1,147 @@
+\documentclass[a4paper]{report}
+\input{./preamble.tex}
+% \usepackage{cmbright}
+
+\usepackage{faktor}
+
+\usepackage[backend=bibtex,sorting=nyvt,block=none,defernumbers=true,autolang=other]{biblatex}
+\addbibresource{refs.bib}
+
+\makeatletter
+\DeclareRobustCommand*{\mfaktor}[3][]
+{
+   { \mathpalette{\mfaktor@impl@}{{#1}{#2}{#3}} }
+}
+\newcommand*{\mfaktor@impl@}[2]{\mfaktor@impl#1#2}
+\newcommand*{\mfaktor@impl}[4]{
+   \settoheight{\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+   \settoheight{\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+      \raisebox{-0.5\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+      \mkern-4mu\diagdown\mkern-5mu%
+      \raisebox{0.5\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+}
+\makeatother
+
+\DeclareMathOperator{\Ker}{ker}
+\DeclareMathOperator{\im}{Im}
+
+\title{NGHIỆM CỤC BỘ CỦA BÀI TOÁN WEBER ĐA NGUỒN PHÁT}
+\author{Lê Nhựt Nam$^1$$^2$}
+\date{
+    $^1$Khoa Toán - Tin học, Trường Đại học Khoa học Tự nhiên\\%
+    $^2$Đại học Quốc gia TP Hồ Chí Minh, Việt Nam\\%
+    \vfill
+    \today
+}
+
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    
+    
+    \chapter{Mở đầu}
+
+
+    \chapter{Kiến thức chuẩn bị}
+
+    Gọi $\N$ là tập hợp các số nguyên dương. Xem xét không gian Euclidean $\R^n$ với $n \in N$ gắn với phép tích trong 
+    \begin{equation}
+        \left< x, y\right> = \sum_{r = 1}^n x_ry_r
+    \end{equation}
+    và chuẩn 
+    \begin{equation}
+        \left\| x\right\| = \left(\sum_{r = 1}^nx^2_r\right)^{\frac{1}{2}} 
+    \end{equation}
+    trong đó $x = (x_1, \dots, x_n)$ và $y = (y_1, \dots, y_n)$.
+
+    Ta gọi quả cầu mở và quả cầu đóng với tâm $a \in \R^n$, bán kính $\rho > 0$ lần lượt là $B(a, \rho)$ và $\overline{B}(a, \rho)$. Bao lồi của một tập $\Omega \subset \R^n$ được ký hiệu là $\text{co}\Omega$. Lưu ý, các vector của không gian Euclidean hữu hạn chiều được biểu diễn như các cột số thực trong các tính toán ma trận nhưng lại được biểu diễn dưới dạng dòng trong báo cáo.
+
+    Xem xét tập dữ liệu $A = \{a^1, \dots, a^m\}$ là một tập con hữu hạn của $\R^n$. Mỗi thành phần $a^i = (a^i_1, \dots, a^i_n), i = 1, \dots, m$ của $A$ đại diện cho một điểm cầu (demand point) với $n$ tọa độ $a^i_1, \dots, a^i_n$. Cho trước một số nguyên dương $k$ và $m$ ràng buộc thực dương $s_1, \dots, s_m$. Giả sử rằng $1 \leq k \leq m$ và đặt $I = \{1, \dots, m\}, J = \{1, \dots, k\}$.
+
+    Bài toán đa nguồn Weber (gọi tắt là MWP) hay bài toán gom cụm với chuẩn Euclidean là một bài toán cực tiểu tổng của tối tiểu có trọng số của các khoảng cách Euclidean của các điểm dữ liệu đến các điểm cơ sở (facilities). Bài toán được định nghĩa hình thức như sau: Ta muốn phân hoạch $A$ thành $k$ tập con rời nhau $A^1, \dots, A^k$, các tập con này được gọi là các cụm (clusters) và liên kết đến mỗi cụm $A^j$ bằng một cơ sở (còn được gọi là một trung tâm - centroid) $x^j \in \R^n$ thỏa mãn 
+    \begin{equation}
+        f(x) := \sum_{i \in I}\left(s_i\min_{j\in J}\left\| a^i - x^j\right\|\right)
+    \end{equation}
+    là nhỏ nhất có thể. Và ở đây, mỗi hằng số $s_i$ với $i \in I$ có thể được hiểu như là trọng số từ điểm cầu $a^i$ đến cơ sở gần nhất. Và do đó, việc giải bài toán MWP là tìm nghiệm của bài toán tối ưu không lồi không trơn không ràng buộc (unconstrained nonsmooth nonconvex optimization problem)
+    \begin{equation}
+        \label{eq:mwp_problem}
+        \min\{f(x) \mid x = (x^1, \dots, x^k) \in \underbrace{\R^n \times \dots \times \R^n}_{k\text{ lần}} = \R^{nk}\}
+    \end{equation}
+    
+    Ta gọi tập nghiệm toàn cục của bài toán \eqref{eq:mwp_problem} là $\mathbf{S}$. Đặt $\R^{nk}$ gắn với chuẩn Euclidean, ký hiệu là $\left\| \cdot \right\|$. Giá trị tối ứu cho bài toán $\eqref{eq:mwp_problem}$ được gọi là $v(A)$.
+
+    \begin{definition}
+        Một vector $\overline{x} = (\overline{x}^1, \dots, \overline{x}^k) \in \R^{nk}$ được gọi là nghiệm cục bộ của bài toán \eqref{eq:mwp_problem} nếu tồn tại $\epsilon > 0$ mà $f(\overline{x}) \leq f(x)$ với mọi $x = (x^1, \dots, x^k) \in \R^{nk}$ thõa mãn $\left\| x - \overline{x}\right\| < \epsilon$.
+    \end{definition}
+
+    Ta gọi tập nghiệm cục bộ của bài toán \eqref{eq:mwp_problem} là $\mathbf{S}_1$. Hiển nhiên, $\mathbf{S}_1 \subset \mathbf{S}$.
+
+    \begin{remark}
+        Tập nghiệm toàn cục (hay tập nghiệm cục bộ) của bài toán \eqref{eq:mwp_problem} bất biến với bất kỳ hoán vị các thành phần nào của các vector $\R^k \times \R^k \times \dots \times \R^k$. Thật vậy, nếu $\overline{x} = (\overline{x}^1, \dots, \overline{x}^k)$ thuộc về tập $\mathbf{S}$ (hay $\mathbf{S}_1$) và $\sigma$ là một hoán vị của tập $J = \{1, 2, \dots, k\}$, thì $\overline{x}_{\sigma} = (\overline{x}^{\sigma(1)}, \dots, \overline{x}^\sigma(k))$ cũng thuộc về $\mathbf{S}$ (hay $\mathbf{S}_1$). Do đó, biểu thức cho $\mathbf{S}$ (hay $\mathbf{S}_1$) có thể bỏ qua các hoán vị, tức là toàn bộ tập nghiệm thu được từ một biểu thức cho trước bằng cách áp dụng lên nó tất cả các hoán vị $\sigma$ của tập $\{1, 2, \dots, k\}$ và sau đó lấy phép hội trên $\sigma$.
+    \end{remark}
+
+    Với $k =1$, bài toán \eqref{eq:mwp_problem} được gọi là bài toán Weber đơn nguồn (single-source Weber problem) hay bài toán phân phối Fermat-Weber (Fermat-Weber location problem). Trong trường hợp này, nó trở thành bài toán tối tiểu lồi (convex minimization problem)
+        \begin{equation}
+            \min\left\{f(x) := \sum_{i \in I}\left(s_i\left\| a^i - x\right\|\right) \mid x \in \R^n\right\}.
+        \end{equation}
+        Bằng định nghĩa, $\overline{x} \in \R^n$ là một nghiệm của bài toán đơn nguồn Weber nếu và chỉ nếu 
+        \begin{equation}
+            \sum_{i \in I}s_i\left\| a^i - \overline{x}\right\| \leq \sum_{i \in I}s_i\left\| a^i - x\right\|\quad \forall x \in \R^n.  
+        \end{equation}
+
+        Các khái niệm về cụm tự nhiên (natural clustering) và tập hợp hấp dẫn (attraction set) đã được đề xuất trong \cite{cuong2020qualitative} cho việc nghiên cứu bài toán gom cụm tối tiểu tổng bình phương (minimum sum-of-squares clustering problem). Sau đó, chúng sử dụng trong \cite{cuong2023global} và thành công trong việc nghiên cứu tập nghiệm toàn cục của bài toán \ref{eq:mwp_problem}. Sau đây, ta nhắc lại các khái niệm này.
+
+        \begin{definition}
+            (Xem \cite{cuong2020qualitative,cuong2023global}) Cho trước một hệ các cơ sở $\overline{x} = (\overline{x}^1, \dots, \overline{x}^k) \in \R^{nk}$, ta nói những thành phần $\overline{x}^j$ của $\overline{x}$ là hấp dẫn tương ứng với tập dữ liệu $A$ nếu tập hợp
+            \begin{equation}
+                A[\overline{x}^j] := \left\{
+                    a^i \in A \mid \left\| a^i - \overline{x}^j\right\| = \min_{q \in I}\left\| a^i - \overline{x}^q\right\|  
+                \right\},
+            \end{equation}
+            gọi là tập hấp dẫn của $\overline{x}^j$, là khác rỗng.
+        \end{definition}
+
+        Cho trước một vector $\overline{x} = (\overline{x}^1, \dots, \overline{x}^k) \in \R^{nk}$, ta có thể xây dựng $k$ tập hợp con rời nhau $A^1, \dots, A^k$ của $A$ bằng cách quy nạp như sau. Đặt $A^0 = \varnothing$ và 
+        \begin{equation}
+            \label{eq:k_cluster}
+            A^j = \left\{ 
+                a^i \in A \setminus \left(
+                    \bigcup_{p=0}^{j-1}A^p
+                \right)
+                \mid \left\| a^i - \overline{x}^j\right\| = \min_{q \in J}\left\| a^i - \overline{x}^q\right\|   
+            \right\}
+        \end{equation}
+        với $j = 1, \dots, k$. Thì, với mọi $i \in I$ và $j \in J$, điểm dữ liệu $a^i$ thuộc về cụm $A^j$ nếu và chỉ nếu khoảng cách $\left\| a^i - \overline{x}^j\right\|$ là tối tiểu giữa các khoảng cách $\left\| a^i - \overline{x}^q\right\|, q \in J$, và $a^i$ không chứa bất kỳ cụm $A^p$ với $1 \leq p \leq j -1$. Rõ ràng, biểu diễn 
+        \begin{equation}
+            A^j = A[\overline{x}^j] \setminus \left(
+                \bigcup_{p=0}^{j-1}A^p
+            \right)
+        \end{equation}
+        thỏa mãn với mọi $A^j$ được cho bởi \eqref{eq:k_cluster}.
+
+        \begin{definition}
+            (Xem \cite{cuong2020qualitative,cuong2023global}) Họ $\{A^1, \dots, A^k\}$ được xây dựng bởi \eqref{eq:k_cluster}, được gọi là phân cụm tự nhiên liên hệ với $\overline{x} = (\overline{x}^1, \dots, \overline{x}^k)$.
+        \end{definition}
+
+        Kết quả trong \cite{cuong2024local} về tập nghiệm toàn cục của bài toán \eqref{eq:mwp_problem} được tóm tắt trong Định lý sau.
+
+
+        \begin{theorem}
+            (Xem \cite[Phần 3]{cuong2024local}) Các tính chất sau đây là hợp lệ:
+            \begin{enumerate}[label=(\alph*)]
+                \item Tập nghiệm toàn cục của bài toán \eqref{eq:mwp_problem} khác rỗng.
+                \item 
+            \end{enumerate}
+        \end{theorem}
+
+    \chapter{Nghiệm cục bộ của bài toán}
+
+
+    \chapter{Kết luận}
+
+
+    % Tài liệu tham khảo
+    \refs
+    \nocite{*}
+\end{document}

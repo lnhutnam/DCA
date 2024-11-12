@@ -1,0 +1,186 @@
+\documentclass[a4paper]{report}
+\input{./preamble.tex}
+% \usepackage{cmbright}
+
+\usepackage{faktor}
+
+\usepackage[backend=bibtex,sorting=nyvt,block=none,defernumbers=true,autolang=other]{biblatex}
+\addbibresource{refs.bib}
+
+\makeatletter
+\DeclareRobustCommand*{\mfaktor}[3][]
+{
+   { \mathpalette{\mfaktor@impl@}{{#1}{#2}{#3}} }
+}
+\newcommand*{\mfaktor@impl@}[2]{\mfaktor@impl#1#2}
+\newcommand*{\mfaktor@impl}[4]{
+   \settoheight{\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+   \settoheight{\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+      \raisebox{-0.5\faktor@zaehlerhoehe}{\ensuremath{#1#2{#3}}}%
+      \mkern-4mu\diagdown\mkern-5mu%
+      \raisebox{0.5\faktor@nennerhoehe}{\ensuremath{#1#2{#4}}}%
+}
+\makeatother
+
+\DeclareMathOperator{\Ker}{ker}
+\DeclareMathOperator{\im}{Im}
+
+\title{NGHIỆM TOÀN CỤC CỦA BÀI TOÁN WEBER ĐA NGUỒN PHÁT}
+\author{Lê Nhựt Nam$^1$$^2$}
+\date{
+    $^1$Khoa Toán - Tin học, Trường Đại học Khoa học Tự nhiên\\%
+    $^2$Đại học Quốc gia TP Hồ Chí Minh, Việt Nam\\%
+    \vfill
+    \today
+}
+
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    
+    \chapter{Mở đầu}
+
+
+    \chapter{Kiến thức chuẩn bị}
+
+    Xem xét một tập hữu hạn $A = \{a^1, \dots, a^m\}$ trong không gian Euclidean $\R^n$ gắn với chuẩn tích số $\left< x, y\right> = \sum_{r = 1}^nx_ry_r$ và chuẩn $\left|x\right| = \left(\sum_{r=1}^nx_r^2\right)^{\frac{1}{2}}$. Với mỗi thành phần $a^i = (a_1^i, \dots, a_n^i), i = 1, \dots, m$ của tập $A$ thể hiện một điểm mục tiêu (demand point) với $n$ tọa độ $a_1^i, \dots, a_n^i$. Gọi $k$ là một số nguyên sao cho $1 \leq k \leq m$. Giả sử rằng cho trước các hằng số dương $s_1, \dots, s_m$. Đặt $I = \{1, \dots, m\}$ và $J = \{1, \dots, k\}$.
+
+    Tiếp theo, quả cầu mở và quả cầu đóng trong không gian Euclidean có tâm ở $a \in \R^n$ với bán kính $\rho > 0$ được ký hiệu lần lượt là $B(a, \rho)$ và $\overline{B}(a, \rho)$. Nếu tập $\Omega$ là một tập con của không gian, thì $\text{co}\Omega$ đại diện cho bao lồi (convex hull). Nếu tập $\Omega$ là một tập hữu hạn thì ta đặt số lượng các phần tử hay lực lượng của tập $\Omega$ là $|\Omega$. Chuẩn trong không gian tích trong $X \times Y$ của hai không gian Euclidean được cho bởi biểu thức $\left| (x, y)\right| = (\left|x\right|^2 + \left|y\right|^2)^{\frac{1}{2}}$ với mọi $(x, y) \in X \times Y$. 
+    
+    \begin{note}
+        Các vector trong không gian Euclidean hữu hạn chiều được thể hiện dưới dạng các dòng số thực trong bài báo cáo nhưng được diễn giải như các cột các số thực trong tính toán ma trận. 
+    \end{note}
+    
+    Bài toán cực tiểu tổng của các tối tiểu có trọng số của các khoảng cách Euclidean từ các điểm mục tiêu đến các trung tâm được gọi là bài toán Weber đa nguồn phát (multi-source Weber problem) và được gọi tắt là MWP được phát biểu như sau. Ta phải phân hoạch tập $A$ thành $k$ tập con rời nhau $A^1, \dots, A^k$ mà được gọi là các cụm (cluster) và liên kết với mỗi cụm $A^j$ bằng một trung tâm (source, centroid) $x^j \in \R^n$ để mà:
+    \begin{equation}
+        \label{eq:mwp_objective_function}
+        f(x):= \sum_{i \in I}\left(s_i \min_{j \in J}\left|a^i - x^j\right|\right)
+    \end{equation}
+    là tối tiểu. Do đó, mỗi hằng số $s_i, i \in I$ thể hiện \emph{trọng số} từ điểm mục tiêu $a^i$ đến các trung tâm nào mà gần với nó nhất. Như trong \cite[trang 333]{cooper1963location}, nó được giả định rằng không có giới hạn sức chứa của nguồn. Do đó, ta có thể giải bài toán \emph{unconstrained nonsmooth nonconvex optimization} sau đây:
+    \begin{equation}
+        \label{eq:mwp_problem}
+        \min\{f(x) \mid x = (x^1, \dots, x^k) \in \R^{n \times k} = \R^{nk}\}
+    \end{equation}
+
+    Với tính không lồi của bài toán multi-source Weber trong Biểu thức \eqref{eq:mwp_problem}, người đọc quan tâm có thể xem các Ví dụ \ref{example:01} và \ref{example:02} trong Phần \ref{sec:global_solutions} và tham khảo \cite{tuy1998convex, thy2001clustering} mà trong đó bài toán MWP được nhận diện như một bài toán quy hoạch DC. Bài toán MWP trong ví dụ \ref{exampe:02} không chỉ có tập nghiệm toàn cục không lồi mà nó cũng có nhiều nghiệm cục bộ không toàn cục. Ta đặt tập nghiệm toàn cục của bài toán \eqref{eq:mwp_problem} là $\mathbf{S}$. Ta nói $\overline{x} = (\overline{x}^1, \dots, \overline{x}^k) \in \R^{nk}$ là một nghiệm cục bộ của bài toán \eqref{eq:mwp_problem} nếu tồn tại $\epsilon > 0$ mà $f(\overline{x}) \leq f(x)$ với mọi $x \in \R^{nk}$ thỏa mãn $\left| x - \overline{x}\right| < \epsilon$. Tập nghiệm cục bộ của bài toán \eqref{eq:mwp_problem} được ký hiệu là $\mathbf{S}_1$.
+
+    Nếu $k = 1$, thì ta nói bài toán \eqref{eq:mwp_problem} là bài toán Weber đơn nguồn phát hay bài toán Fermat-Weber và viết tắt là SWP.
+
+    \begin{remark}
+        Bài toán \eqref{eq:mwp_problem} với $s_i = 1$ với mọi $i \in I$ và các ràng buộc bổ sung $x^j \in \Omega$ với mọi $j \in J$ trong đó $\Omega$ là một tập lồi đóng khác rỗng cho trước trong không gian $\R^n$, có thể được xem xét như bài toán Weber đa nguồn phát có ràng buộc. Nó đã được xem xét trong \cite[trạng 222-226]{tuy1998convex}.
+    \end{remark}
+    
+    Bài toán MWP trong dạng cũ hơn được giải quyết bởi Brimberg và Mladenović \cite{brimberg1999degeneracy}, Nobakhtian và Raeisi Dehkordi \cite{nobakhtian2018algorithm}, Raeisi Dehkordi \cite{raeisi2019optimal}, và một số tác giả khác. Trong dạng bài toán đang xem xét, gọi $w = (w_{ij})$ là ma trận $m \times k$ thỏa mãn điều kiện
+    \begin{equation}
+        \label{eq:cond}
+        w_{ij} \geq 0\quad \forall (i, j) \in I \times J, \quad \sum_{j \in J}w_{ij} = s_i \quad \forall i \in I.
+    \end{equation}
+    Ta quan tấm đến bài toán tối ưu có ràng buộc sau:
+    \begin{equation}
+        \label{eq:mwp_problem_v2}
+        \min\left\{
+            \psi(x, w) \mid x = (x^1, \dots, x^k) \in \R^{nk}, w = (w_{ij} \quad\text{thỏa \eqref{eq:cond}}),
+        \right\}
+    \end{equation}
+    trong đó 
+    \begin{equation}
+        \label{eq:mwp_problem_v2_mat_01}
+        \psi(x, w) := \sum_{j \in J}\left(\sum_{i \in I}w_{ij}\left|a^i - x^j\right|\right).
+    \end{equation}
+    Để ý rằng 
+    \begin{equation}
+        \label{eq:mwp_problem_v2_mat_02}
+        \psi(x, w) := \sum_{i \in I}\left(\sum_{j \in I}w_{ij}\left|a^i - x^j\right|\right).
+    \end{equation}
+
+    Mệnh đề tiếp theo đây sẽ cho thấy sự tương đương giữa bài toán \eqref{eq:mwp_problem} và \eqref{eq:mwp_problem_v2}. Mặc dù đây là kết quả đã có (xem \cite{sabach2018smoothing})
+
+
+    \begin{proposition}
+        \label{prop:mwp_equivalence}
+        Nếu $\overline{x}, \overline{w}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem_v2}, thì $\overline{x}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem}. Ngược lại, nếu $\overline{x}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem}, thì tồn tại $\overline{w} = (\overline{w}_{ij})$ sao cho $\overline{x}, \overline{w}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem_v2}
+    \end{proposition}
+    \begin{proof}
+        Trước tiên, chúng ta cần thiết lập một số tính chất hữu ích thông qua các Khẳng định \ref{claim:mwp_equivalence_01} và \ref{claim:mwp_equivalence_02}.
+        \begin{claim}
+            \label{claim:mwp_equivalence_01}
+            Với mọi $x = (x^1, \dots, x^k) \in \R^{nk}$, tồn tại một ma trận $w = (w_{ij})$ thỏa mãn \eqref{eq:cond} sao cho $f(x) =  \psi(x, w)$.
+        \end{claim}
+        Để chứng minh khẳng định này, cố định bất kỳ $x = (x^1, \dots, x^k) \in \R^{nk}$. Với mọi $i \in I$, số nhỏ nhất trong tập hợp các chỉ số $j \in J$ ký hiệu là $j(i) \in J$ có tính chất:
+        \begin{equation}
+            \left|a^i - x^j\right| = \min_{q \in I}\left|a^i - x^q\right|.
+        \end{equation}
+        Với mỗi $(i, j) \in I \times J$, đặt $w_{ij} = s_i$ với $j = j(i)$ và $w_{ij} = 0$ với $j \ne j(i)$. Rõ ràng, ma trận $w = (w_{ij})$ được định nghĩa theo cách mà thỏa mãn Biểu thức \eqref{eq:cond}. Hơn nữa, bằng cách sử dụng \eqref{eq:mwp_problem_v2_mat_02} và \eqref{eq:mwp_objective_function}, ta có thể xác minh được rằng $\psi(x, w) = f(x)$.
+
+        Bây giờ, để chứng minh cho lời khẳng định đầu tiên của Mệnh đề, giả sử rằng $\overline{x}, \overline{w}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem_v2}. Với bất kỳ $(i, j) \in I \times J$, nếu $\overline{w}_{ij} > 0$, thì ta phải có:
+        \begin{equation}
+            \left|a^i - \overline{x}^j\right| = \min_{q \in I}\left|a^i - \overline{x}^q\right|.
+        \end{equation}
+        Thật vậy, nếu $\overline{w}_{ij} > 0$ và 
+        \begin{equation}
+            \left|a^i - \overline{x}^j\right| > \min_{q \in I}\left|a^i - \overline{x}^q\right|.
+        \end{equation}
+        với một số bộ $(i, j) \in I \times J$, thì tồn tại $j_1 \in J$ với $\left|a^i - \overline{x}^j\right| = \min_{q \in I}\left|a^i - \overline{x}^q\right|$. Đặt $\widetilde{w}_{ij_1} = \overline{w}_{ij_1} + \overline{w}_{ij}, \widetilde{w}_{ij} = 0, \widetilde{w}_{pq} = \overline{w}_{pq}$ với bất kỳ trường hợp nào mà $p \ne i$ hay $p = i$ và $q \notin \{j, j_1\}$. Nhờ vào Biểu thức \eqref{eq:mwp_problem_v2_mat_02}, ta có:
+        \begin{align}
+            \psi(\overline{x}, \overline{w}) - \psi(\overline{x}, \widetilde{w}) &= \sum_{p \in I}\left(\sum_{q \in J}\overline{w}_{pq}\left|a^p - \overline{x}^q\right|\right) - \sum_{p \in I}\left(\sum_{q \in J}\widetilde{w}_{pq}\left|a^p - \overline{x}^q\right|\right) \\
+            &= \sum_{q \in J}\overline{w}_{iq}\left|a^i - \overline{x}^q\right| - \sum_{q \in J}\widetilde{w}_{iq}\left|a^i - \overline{x}^q\right| \\
+            &= (\overline{w}_{ij} - \widetilde{w}_{ij})\left|a^i - \overline{x}^j\right| + (\overline{w}_{ij_1} - \widetilde{w}_{ij_1})\left|a^i - \overline{x}^{j_1}\right|\\
+            &= \overline{w}_{ij}\left(\left|a^i - \overline{x}^j\right| - \left|a^i - \overline{x}^{j_1}\right|\right)
+        \end{align}
+        Do đó, $\psi(\overline{x}, \overline{w}) -  \psi(\overline{x}, \widetilde{w}) > 0$. Bởi vì $(\overline{x}, \widetilde{w})$ là một điểm khả thi của bài toán \eqref{eq:mwp_problem_v2}, điều này vi phạm tính toàn cục của $(\overline{x}, \overline{w})$.
+
+        Sử dụng Biểu thức \eqref{eq:mwp_problem_v2_mat_02} và việc với mọi $(i, j) \in I \times J$, nếu $\overline{w}_{ij} > 0$ thì 
+        \begin{equation}
+            \left|a^i - \overline{x}^j\right| = \min_{q \in I}\left|a^i - \overline{x}^q\right|,
+        \end{equation}
+        Ta có thể dễ dàng chứng minh được rằng $\psi(\overline{x}, \overline{w}) = f(\overline{x})$. Trong khi đó, áp dụng Khẳng định \ref{claim:mwp_equivalence_01}, ta có thể kiểm tra giá trị tối ưu của bài toán \eqref{eq:mwp_problem_v2} không vượt quá giá trị tối ưu của bài toán \eqref{eq:mwp_problem}. Do vậy, $\overline{x}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem}.
+
+        Cuối cùng, để chứng minh cho lời khẳng định thức hai của Mệnh đề, giả sử rằng $\overline{x}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem} và ma trận $w = (w_{ij})$ thỏa mãn \eqref{eq:cond}. Dựa trên Khẳng định \ref{claim:mwp_equivalence_01}, tồn tại một ma trận $\overline{w} = (\overline{w}_{ij})$ sao cho:
+        \begin{equation}
+            \label{eq:inequality_claim:mwp_equivalence_01}
+            \overline{w}_{ij} \geq 0\quad \forall (i, j) \in I \times J, \quad \sum_{j \in J}\overline{w}_{ij} = s_i\quad\forall i \in I
+        \end{equation}
+        và $\psi(\overline{x}, \overline{w}) = f(\overline{x})$. Khẳng định sau đây là hợp lệ.
+        \begin{claim}
+            \label{claim:mwp_equivalence_02}
+            $\overline{x}, \overline{w}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem_v2}.
+        \end{claim}
+        Thật vậy, nếu Khẳng định là sai, thì ta có có thể tìm thấy một vector $x = (x^1, \dots, x^k) \in \R^{nk}$ và một ma trận $w = (w_{ij})$ sao cho thỏa mãn \eqref{eq:cond} với $\psi(x, w) < \psi(\overline{x}, \overline{w})$. Để ý rằng:
+        \begin{align}
+            \psi(x, w) &= \sum_{i \in I}\left(\sum_{j \in J}w_{ij}\left|a^i - x^j\right|\right) \\ 
+            &\geq \sum_{i \in I}\left[\sum_{j \in J}w_{ij}\left(\min_{q \in J}\left|a^i - x^q\right|\right)\right] \\ 
+            &\geq \sum_{i \in I}\left[\left(\min_{q \in J}\left|a^i - x^q\right|\right)\sum_{j \in J}w_{ij}\right] \\ 
+            &\geq \sum_{i \in I}\left[s_i\min_{q \in J}\left|a^i - x^q\right|\right] \\ 
+            &= f(x)
+        \end{align}
+        Ta suy ra $f(x) \leq \psi(x, w) < \psi(\overline{x}, \overline{w}) = f(\overline{x})$. Dẫn đến sự vô lý bởi vì $\overline{x}$ là một nghiệm toàn cục của bài toán \eqref{eq:mwp_problem}.
+
+        Như thế, Khẳng định \ref{claim:mwp_equivalence_02} đã chứng minh cho phần khẳng định thứ hai của Mệnh đề.
+
+        Chứng minh hoàn tất.
+    \end{proof}
+
+    Với bất kỳ ma trận $m \times k$ $\widehat{w} = (\widetilde{w}_{ij})$, chuẩn $\left|\widetilde{w}\right|$ được định nghĩa như max của chuẩn của các vector $\widetilde{w}v \in \R^{m}$ với $v = (v_1, \dots, v_k) \in \R^{k}$ thỏa mãn $\left|v\right| \leq 1$. Khái niệm nghiệm cục bộ của bài toán \eqref{eq:mwp_problem_v2} được định nghĩa tương tự như của bài toán \eqref{eq:mwp_problem}.
+
+    \begin{definition}
+        Bộ $\overline{x}, \overline{w}$ với $\overline{w}$ thỏa mãn Biểu thức \eqref{eq:inequality_claim:mwp_equivalence_01} được gọi là một \emph{nghiệm cục bộ} của bài toán \eqref{eq:mwp_problem_v2} nếu tồn tại $\epsilon > 0$ mà với bất kỳ $x = (x^1, \dots, x^k) \in \R^{nk}$ và $w = (w_{ij})$ thỏa mãn \eqref{eq:cond} với $\max\{\left|x - \overline{x}\right|, \left|w - \overline{w}\right|\} < \epsilon$, ta có: $\psi(\overline{x}, \overline{w}) - \psi({x}, {w})$.
+    \end{definition}
+
+    Định nghĩa sau đây tăng cường hơn cho định nghĩa phía trên.
+    \begin{definition}
+        Bộ $\overline{x}, \overline{w}$ với $\overline{w}$ thỏa mãn Biểu thức \eqref{eq:inequality_claim:mwp_equivalence_01} được gọi là một \emph{nghiệm cục bộ tăng cường} của bài toán \eqref{eq:mwp_problem_v2} nếu tồn tại $\epsilon > 0$ mà với bất kỳ $x = (x^1, \dots, x^k) \in \R^{nk}$ với $\left|x - \overline{x}\right| < \epsilon$ và với mọi ma trận $w = (w_{ij})$ thỏa mãn \eqref{eq:cond}, ta có: $\psi(\overline{x}, \overline{w}) - \psi({x}, {w})$.
+    \end{definition}
+
+    
+
+    \chapter{Nghiệm toàn cục của bài toán}
+    \label{sec:global_solutions}
+
+
+    \chapter{Kết luận}
+    
+
+    % Tài liệu tham khảo
+    \refs
+\end{document}
