@@ -1,0 +1,45 @@
+\documentclass[a4paper]{report}
+\input{preamble.tex}
+
+\usepackage[backend=bibtex,sorting=nyvt,block=none,defernumbers=true,autolang=other]{biblatex}
+\addbibresource{refs.bib}
+
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\spann}{span}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\Ker}{Ker}
+\DeclareMathOperator{\im}{Im}
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\Mat}{Mat}
+\title{CÁC VẤN ĐỀ MỞ VÀ NHỮNG TIẾN BỘ GẦN ĐÂY TRONG  QUY HOẠCH DC VÀ DCA}
+\author{}
+
+\date{Dựa trên bài báo ``Open issues and recent advances in DC programming and DCA''\\ của GS. Lê Thị Hoài An và GS. Phạm Đình Tảo \\
+\vspace{0.5cm}
+    Dịch bởi Lê Nhựt Nam$^1$$^2$ \\  
+    \vspace{0.5cm}
+    $^1$Khoa Toán - Tin học, Trường Đại học Khoa học Tự nhiên\\%
+    $^2$Đại học Quốc gia TP Hồ Chí Minh, Việt Nam\\%
+    \vfill
+\today}
+
+\setcounter{section}{-1}
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    % start lessons
+    \input{1_introduction.tex}
+    \input{2_foundation.tex}
+    \input{3_challenges.tex}
+    \input{4_reducing.tex}
+    \input{5_convergence.tex}
+    \input{6_tailored.tex}
+    \input{7_extended.tex}
+    \input{8_globalizing.tex}
+    \input{9_novel.tex}
+    \input{10_beyond.tex}
+    \input{11_ml_dca.tex}
+    \input{12_conclusion.tex}
+\end{document}
